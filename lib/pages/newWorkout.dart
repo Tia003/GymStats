@@ -107,9 +107,12 @@ class _NewWorkoutState extends State<NewWorkout> {
                         color: AppColors.whiteText,
                         alignment: Alignment.center,
                         iconSize: 19,
-                        icon: Icon(Icons.add),
+                        icon: _selectedEsercizi.isEmpty
+                            ? Icon(Icons.add)
+                            : Icon(Icons.edit),
                         onPressed: () {
-                          _navigateToExercisePickerScreen(context);
+                          _navigateToExercisePickerScreen(
+                              context, _selectedEsercizi);
                         },
                       ),
                     ],
@@ -126,23 +129,56 @@ class _NewWorkoutState extends State<NewWorkout> {
                     : Container(
                         height: MediaQuery.of(context).size.height * 0.6,
                         child: ListView.builder(
-                          physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: _selectedEsercizi.length,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text(
-                                _selectedEsercizi[index],
-                                style: TextStyle(color: AppColors.whiteText),
-                              ),
-                              trailing: IconButton(
-                                color: AppColors.whiteText,
-                                alignment: Alignment.center,
-                                iconSize: 19,
-                                icon: Icon(Icons.keyboard_arrow_down_rounded),
-                                onPressed: () {
-                                  _navigateToExercisePickerScreen(context);
-                                },
+                            return Container(
+                              padding: EdgeInsets.all(8),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/icon/iconEmpty.png',
+                                    width: 80,
+                                    height: 80,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _selectedEsercizi[index],
+                                        style: TextStyle(
+                                          color: AppColors.whiteText,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 4,
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 2),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.titlePage,
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(5),
+                                          ),
+                                        ),
+                                        child: const Wrap(
+                                          spacing:
+                                              5.0, // Spazio tra i widget all'interno del Wrap
+                                          children: [
+                                            Text('5'),
+                                            Text('x'),
+                                            Text('10'),
+                                            SizedBox(width: 5),
+                                            Text('25 Kg'),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           },
@@ -187,11 +223,13 @@ class _NewWorkoutState extends State<NewWorkout> {
     );
   }
 
-  void _navigateToExercisePickerScreen(BuildContext context) async {
+  void _navigateToExercisePickerScreen(
+      BuildContext context, _selectedEsercizi) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ExercisePickerScreen(),
+        builder: (context) =>
+            ExercisePickerScreen(selectedEsercizi: _selectedEsercizi),
       ),
     );
 

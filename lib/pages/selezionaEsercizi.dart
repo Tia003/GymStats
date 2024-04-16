@@ -3,13 +3,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:gymstats/globalStyle.dart';
 
 class ExercisePickerScreen extends StatefulWidget {
+  final List<String> selectedEsercizi;
+
+  ExercisePickerScreen({required this.selectedEsercizi});
+
   @override
   _ExercisePickerScreenState createState() => _ExercisePickerScreenState();
 }
 
 class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
-  List<String> selectedEsercizi = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,8 +33,8 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
           TextButton(
             onPressed: () {
               // Azione da eseguire quando viene premuto il pulsante "Salva"
-              print(selectedEsercizi);
-              Navigator.pop(context, selectedEsercizi);
+              print(widget.selectedEsercizi);
+              Navigator.pop(context, widget.selectedEsercizi);
             },
             child: const Text(
               'Salva',
@@ -52,13 +54,13 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
               exercises[index],
               style: TextStyle(fontSize: 16, color: AppColors.whiteText),
             ),
-            value: selectedEsercizi.contains(exercises[index]),
+            value: widget.selectedEsercizi.contains(exercises[index]),
             onChanged: (bool? value) {
               setState(() {
                 if (value != null && value) {
-                  selectedEsercizi.add(exercises[index]);
+                  widget.selectedEsercizi.add(exercises[index]);
                 } else {
-                  selectedEsercizi.remove(exercises[index]);
+                  widget.selectedEsercizi.remove(exercises[index]);
                 }
               });
             },

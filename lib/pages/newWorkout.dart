@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gymstats/globalStyle.dart';
+import 'package:gymstats/pages/selezionaEsercizi.dart';
 
 class NewWorkout extends StatefulWidget {
   const NewWorkout({Key? key}) : super(key: key);
@@ -10,8 +11,15 @@ class NewWorkout extends StatefulWidget {
 }
 
 class _NewWorkoutState extends State<NewWorkout> {
-  String selectedCategory =
-      'Categoria'; // Valore iniziale per il campo categoria
+  String _selectedCategory = 'Categoria';
+  List<String> _selectedEsercizi = []; // Definizione della lista selezionata
+  TextEditingController _categoryController = TextEditingController();
+
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +41,7 @@ class _NewWorkoutState extends State<NewWorkout> {
         centerTitle: true,
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: const EdgeInsets.all(8),
@@ -42,9 +51,8 @@ class _NewWorkoutState extends State<NewWorkout> {
                   decoration: InputDecoration(
                     hintText: 'Nome',
                     hintStyle: TextStyle(
-                      color: AppColors.whiteText,
+                      color: AppColors.placeholder,
                     ),
-                    // Se desideri cambiare anche il colore del bordo quando il campo ottiene il focus, puoi utilizzare focusedBorder.
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(
                         color: AppColors.titlePage,
@@ -57,14 +65,13 @@ class _NewWorkoutState extends State<NewWorkout> {
                     Expanded(
                       child: TextField(
                         readOnly: true,
-                        controller:
-                            TextEditingController(text: selectedCategory),
-                        decoration: InputDecoration(
+                        controller: _categoryController,
+                        decoration: const InputDecoration(
                           hintText: 'Categoria',
                           hintStyle: TextStyle(
-                            color: AppColors.whiteText,
+                            color: AppColors.placeholder,
                           ),
-                          focusedBorder: const UnderlineInputBorder(
+                          focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
                               color: AppColors.titlePage,
                             ),
@@ -88,12 +95,59 @@ class _NewWorkoutState extends State<NewWorkout> {
                   height: 20,
                 ),
                 Container(
-                  height: 25,
+                  height: 35,
                   padding: EdgeInsets.all(2),
                   width: double.infinity,
                   decoration: BoxDecoration(color: AppColors.titlePage),
-                  child: Text('ESERCIZI'),
-                )
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('ESERCIZI'),
+                      IconButton(
+                        color: AppColors.whiteText,
+                        alignment: Alignment.center,
+                        iconSize: 19,
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          _navigateToExercisePickerScreen(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                _selectedEsercizi.isEmpty
+                    ? Container(
+                        height:
+                            50, // Altezza definita per il Container quando non ci sono esercizi selezionati
+                        child: Center(
+                          child: Text('Aggiungi almeno un esercizio'),
+                        ),
+                      )
+                    : Container(
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: _selectedEsercizi.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(
+                                _selectedEsercizi[index],
+                                style: TextStyle(color: AppColors.whiteText),
+                              ),
+                              trailing: IconButton(
+                                color: AppColors.whiteText,
+                                alignment: Alignment.center,
+                                iconSize: 19,
+                                icon: Icon(Icons.keyboard_arrow_down_rounded),
+                                onPressed: () {
+                                  _navigateToExercisePickerScreen(context);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               ],
             ),
           ),
@@ -102,7 +156,6 @@ class _NewWorkoutState extends State<NewWorkout> {
     );
   }
 
-  // Funzione per mostrare il CupertinoPicker
   void _showCategoryPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -113,8 +166,8 @@ class _NewWorkoutState extends State<NewWorkout> {
             itemExtent: 35,
             onSelectedItemChanged: (int index) {
               setState(() {
-                // Aggiorna il valore selezionato
-                selectedCategory = categories[index];
+                _selectedCategory = categories[index];
+                _categoryController.text = _selectedCategory;
               });
             },
             children: List.generate(
@@ -133,13 +186,27 @@ class _NewWorkoutState extends State<NewWorkout> {
       },
     );
   }
+
+  void _navigateToExercisePickerScreen(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExercisePickerScreen(),
+      ),
+    );
+
+    if (result != null && result is List<String>) {
+      setState(() {
+        _selectedEsercizi = result;
+      });
+    }
+  }
 }
 
-// Lista delle categorie di esempio
 List<String> categories = [
   'Cardio',
   'Sollevamento pesi',
   'Yoga',
   'Pilates',
-  'CrossFit'
-]; // Aggiungi le tue categorie
+  'CrossFit',
+];
